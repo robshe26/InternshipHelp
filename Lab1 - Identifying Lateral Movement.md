@@ -29,7 +29,7 @@ Command Breakdown: CrackMapExec Lateral Movement
   - Uses Windows management features to silently run the command in the background.
   - The /all flag prints the Access Token, reveailing SIDs, gorup memberships, and high level privileges.
 
-___Upon Completion of the attack it should appear like this:___
+___Upon completion of the attack you should get a similar result as the following:___
 <img width="1200" height="803" alt="image" src="https://github.com/user-attachments/assets/b8e48f35-c725-4fb1-88b4-1644e5456732" />
 
 
