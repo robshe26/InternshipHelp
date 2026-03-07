@@ -5,7 +5,9 @@ This is walkthrough and an explanation on a simple attack, identifying privilege
 On the Kali VM use "crackmapexec" to run a remote command on the DC: 
 
 *crackmapexec smb <DC_IP> -u Administrator -p 'Passw0rd!' -x 'whoami /all'*
-___
+
+***
+
 Command Breakdown: CrackMapExec Lateral Movement 
 - crackmapexec
   - An overarching post-exploitation toolkit used to automate network attacks.
@@ -32,6 +34,8 @@ Command Breakdown: CrackMapExec Lateral Movement
 ___Upon completion of the attack you should get a similar result as the following:___
 <img width="1200" height="803" alt="image" src="https://github.com/user-attachments/assets/b8e48f35-c725-4fb1-88b4-1644e5456732" />
 
+***
+
 ## Step 2: Evidence Investigation (On the DC VM) ##
 
 
@@ -40,7 +44,7 @@ Using the Event Viewer (eventvwr.msc) on the DC VM to find all evidence
 - Windows Sysmon Log: Windows Log: Windows Logs -> System
 - Sysmon Operation Log: Applications and Services Logs -> Microsoft -> Windows -> Sysmon -> Operational
 
-#### Event ID 4624 (Successful Logon) // (Source Kali IP) - 192.168.1.69 ####
+### Event ID 4624 (Successful Logon) // (Source Kali IP) - 192.168.1.69 ###
 
 - The Attack Correlation: This log is triggered by the authentication phase of the attack, or the * -u Administrator -p 'Passw0rd!'* portion of the CME command.
 - Event ID 4624 Overview: A Windows Security log generated for every successful authentication attempt, whether by a physical user, background service, or remote connection.
@@ -62,13 +66,15 @@ Lab Specific Findings:
 ___The corresponding log should appear similar to this:___
 <img width="1174" height="705" alt="image" src="https://github.com/user-attachments/assets/c681d926-4de1-4c3c-bea2-5408664eef2c" />
 
-#### Event ID 4688 (New Process Creation) ####
-
 ***
+
+### Event ID 4688 (New Process Creation) ###
+
+
 **Before Event ID 4688 appears: Windows does not audit all process creations by defualt**
 - You may have to enable process creation
   - This can be done by running `auditpol /set /subcategory:"Process Creation" /success:enable /failure:disable`
-***
+
 
 - The Attack Correlation: This log is triggered when the compromised account begins a new process on the system, or the *-x* flag in the CME command
 - Event ID 4688 Overview: A Windows Security log generated every time a new program or process is started. It is crucial for security professionals, as every piece of software must start as a process of execution 
@@ -87,7 +93,9 @@ Lab Specific Findings:
 ___The corresponding log should appear similar to this:___
 <img width="975" height="465" alt="image" src="https://github.com/user-attachments/assets/a3c5579d-ca98-44e4-8ed0-bfea15a356ba" />
 
-#### Event ID 1 (New Process Creation) ####
+***
+
+### Event ID 1 (New Process Creation) ###
 
 - The Attack Correlation: This log is the direct result of the commands passed after the *-x* argument in CME
 - Sysmon Overview: An advanced logging tool that provides deeper visibility into system activity. It contains all the baseline information of an Event ID 4688, but with significantly more detail
