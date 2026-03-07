@@ -9,24 +9,30 @@ On the Kali VM use "crackmapexec" to run a remote command on the DC:
 ***
 
 Command Breakdown: CrackMapExec Lateral Movement 
-- crackmapexec
+
+crackmapexec:
   - An overarching post-exploitation toolkit used to automate network attacks.
   - Evaluates Active Directory security by authenticating as an admin to display identity and network permissions
-- smb
+
+smb:
   - The module selector that specifies the protocol for communication.
   - Directs CME to target the Server Message Block (SMB) service (TCP port 445) to look for exposed administrative shares
-- <DC_IP>
+
+<DC_IP>:
   - For this specific example, the IP address of the targeted machine is 192.168.1.70
   - The target argument defining the specific host, CIDR range, or IP list to be accessed.
   - Aimed at Domain Controllers because they act as the central authentication authority and house the Active Directory database.
-- -u administrator
+
+-u administrator:
   - Defines the authentication identity (username) for the attack
-  - Without a specified domain, CME attempts a local login; however, a DC will automatically interpret this as the Domain Administrator
-- -p 'Passw0rd!'
+  - Without a specified domain, CME attempts a local login; however, a DC will automatically interpret this as the Domain Administrator.
+
+-p 'Passw0rd!':
   - Provides the secret/password required to validate the claimed identity.
   - Uses the NTLM Challenge-Response process to authenticate rather than sending the plaintext password directly.
   - Can be swapped with a password file to perform "password spraying" or brute-force attacks.
-- -x 'whoami /all'
+
+-x 'whoami /all':
   - Specifies the remote command to execute immediately after successful authentication.
   - Uses Windows management features to silently run the command in the background.
   - The /all flag prints the Access Token, revealing SIDs, group memberships, and high level privileges.
@@ -39,7 +45,7 @@ ___Upon completion of the attack you should get a similar result as the followin
 ## Step 2: Evidence Investigation (On the DC VM) ##
 
 
-Using the Event Viewer (eventvwr.msc) on the DC VM to find all evidence 
+Use the Event Viewer (eventvwr.msc) on the DC VM to find all evidence 
 - Windows Security Log: Windows Logs -> Security
 - Windows Sysmon Log: Windows Log: Windows Logs -> System
 - Sysmon Operation Log: Applications and Services Logs -> Microsoft -> Windows -> Sysmon -> Operational
