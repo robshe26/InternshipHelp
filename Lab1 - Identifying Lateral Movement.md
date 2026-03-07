@@ -64,6 +64,12 @@ ___The corresponding log should appear similar to this:___
 
 #### Event ID 4688 (New Process Creation) ####
 
+***
+**Before Event ID 4688 appears: Windows does not audit all process creations by defualt**
+- You may have to enable process creation
+  - This can be done by running `auditpol /set /subcategory:"Process Creation" /success:enable /failure:disable`
+***
+
 - The Attack Correlation: This log is triggered when the compromised account begins a new process on the system, or the *-x* flag in the CME command
 - Event ID 4688 Overview: A Windows Security log generated every time a new program or process is started. It is crucial for security professionals, as every piece of software must start as a process of execution 
 
