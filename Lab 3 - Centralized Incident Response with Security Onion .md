@@ -1,13 +1,13 @@
-# Centralized Incident Response with Secuirty Onion - Lab 3 #
+# Centralized Incident Response with Security Onion - Lab 3 #
 This is a walkthrough and an explanation on executing lateral movement and persistence attacks, and investigating these attacks with Security Onion.
 
-## Step 1: Generate Telementary (The Attack) ##
+## Step 1: Generate Telemetry (The Attack) ##
 
  **Rerun the attacks mentioned in the last labs from the Kali VM to make sure that there are fresh logs in the Security Onion.**
  The attacks are as follows:
    - `crackmapexec smb <DC_IP> -u Administrator -p 'Passw0rd!' -x 'whoami /all'`
-   - `impacket-psexec lab.local/Adminisrator:'Passw0rd!'@<DC_IP>`
-       - Inside the shell run `"Maintenance" binPath= "cmd.exe /c echo 'Backdoor > C:\temp.exe"`
+   - `impacket-psexec lab.local/Administrator:'Passw0rd!'@<DC_IP>`
+       - Inside the shell run `sc create "Maintenance" binPath= "cmd.exe /c echo 'Backdoor > C:\temp.exe"`
     
 ### Navigate to the Security Onion ###
 
@@ -20,14 +20,14 @@ Security Onion &rarr; Alerts &rarr; Options &rarr; Enable advanced interface fea
 Lab Specific Findings:
   -  Filter for the specific event using `event_data.host.name: "DC VM NAME"` and `destination.ip:<Your_DC_IP>`
        - In my case this would be `event_data.host.name: DC-sheehare23` and `destination.ip:192.168.1.70`
-  - This surface Sigma alerts such as *HackTool - CrackMapExec Execution Patters* and *Suspicious New Service Creation*
+  - This surfaced Sigma alerts such as *HackTool - CrackMapExec Execution Patterns* and *Suspicious New Service Creation*
 
 Key Data Captured in the Log:
 - event_data.host.hostname: Identifies the target machine
-- event_Data.process.command_line: Shows the exact command executed.
+- event_data.process.command_line: Shows the exact command executed.
 - event_data.process.name: Indicates the file or program that was launched
 - event_data.winlog.user.name: Indicates the account that executed the child process
-- evnet_data.winlog.event_data.ParentUser: Indicates the account that exectued the parent process
+- event_data.winlog.event_data.ParentUser: Indicates the account that exectued the parent process
 
 *In my case these fields are as follows:*
 
@@ -51,9 +51,42 @@ Key Data Captured in the Log:
 
 ### Task B: Deep Dive with Kibana Discover ###
 
-Security Onion &rarr; Kibana &rarr; Discover &rarr; Data View (ensure index patters is set to "logs-*") &rarr; Make sure time range is correct
+Security Onion &rarr; Kibana &rarr; Discover &rarr; Data View (ensure index Patterns is set to "logs-*") &rarr; Make sure time range is correct
 
-**Overview: Kibbana allows you to see exactly what happened by looking at the raw data. It is best for deep forensics such as granular filtering, visualization, and raw log parsing.**
+**Overview: Kibana allows you to see exactly what happened by looking at the raw data. It is best for deep forensics such as granular filtering, visualization, and raw log parsing.**
+
+Investigating Lateral Movement(whoami):
+
+- Filter for specific events using `process.name: "whoami.exe"` and `host.name: "Your_DC_NAME"`
+  - In my specific case my DC name would be `dc-sheehare23`
+
+____The resulting log should appear similar to this:___
+<img width="1275" height="802" alt="image" src="https://github.com/user-attachments/assets/21817620-643d-46ac-afeb-7babd40294d9" />
+
+Investigating the Malicious Service:
+- Filter for specific events using `process.name: "sc.exe"` and `winlog.event_id:1`
+
+___The resulting log should appear similar to this:___
+<img width="1270" height="464" alt="image" src="https://github.com/user-attachments/assets/28712896-a883-4607-adc9-a59cda791c43" />
+
+- In this case the columns for user.name, process.name, and process.command_line were added on the left side of the screen (Available Fields sidebar) to create columns for the logs, making the data easier to read.
+___
+
+## Interface Comparison: Hunt vs. Kibana 
+
+Hunt: 
+- Best for quick metadata search and seeing pre-built detections. It is better for a professional to see if their machine or network is under attack because it labels events based on importance
+
+Kibana: 
+- Best for deep forensics. It is better for when you know an attack has occurred, and you need to search for exactly what the attacker did while they were in.
+___
+
+## Forensic Correlation Table 
+
+|Attacker tool|Security Onion Alert|Kibana Search Field|Key Evidence(Command Line)|
+|----|----|----|----|
+|smbexec|HackTool - CrackMapExec Execution Patterns|process.name|whoami /all|
+|psexec /sc|Suspicious New Service Creation|process.command_line|sc create "Maintenance" binPath="cmd.exe /c echo 'Backdoor'>C:\temp.exe"|
 
 
 
